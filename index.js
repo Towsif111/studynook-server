@@ -26,9 +26,14 @@ async function run() {
   try {
     await client.connect();
 
-    const db = client.db("studynook")
+    const db = client.db("studynook");
+    const roomCollection = db.collection("rooms");
+    
+    app.get('/room', async(req, res) => {
+      const result = await roomCollection.find().toArray();
+      res.json(result);
+    });
 
-    const roomCollection = db.collection("rooms")
 
     app.post('/room', async (req, res) => {
       try {
