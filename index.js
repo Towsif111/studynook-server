@@ -80,9 +80,28 @@ async function run() {
     });
 
 
+      app.get("/booking/:userId", async (req, res) => {
+      const { userId } = req.params;
+
+      const result = await bookingCollection.find({ userId: new ObjectId(userId) }).toArray();
+
+      res.json(result);
+    });
+
+
      app.post("/booking",  async (req, res) => {
       const bookingData = req.body;
       const result = await bookingCollection.insertOne(bookingData);
+
+      res.json(result);
+    });
+
+
+    app.delete("/booking/:bookingId", async (req, res) => {
+      const { bookingId } = req.params;
+      const result = await bookingCollection.deleteOne({
+        _id: new ObjectId(bookingId),
+      });
 
       res.json(result);
     });
