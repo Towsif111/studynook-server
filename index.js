@@ -28,6 +28,7 @@ async function run() {
 
     const db = client.db("studynook");
     const roomCollection = db.collection("rooms");
+    const bookingCollection = db.collection("bookings");
     
     app.get("/room", async(req, res) => {
       const result = await roomCollection.find().toArray();
@@ -75,6 +76,14 @@ async function run() {
       const result = await roomCollection.deleteOne({
         _id: new ObjectId(id),
       });
+      res.json(result);
+    });
+
+
+     app.post("/booking",  async (req, res) => {
+      const bookingData = req.body;
+      const result = await bookingCollection.insertOne(bookingData);
+
       res.json(result);
     });
 
