@@ -2,6 +2,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
 dotenv.config()
 
 const uri = process.env.MONGODB_URI;
@@ -21,6 +22,30 @@ const client = new MongoClient(uri, {
 });
 
 
+const JWKS = createRemoteJWKSet (
+  new URL("http://localhost:3000/api/auth/jwks")
+)
+
+
+const verifyToken = async (req, res, next) => {
+  const authHeader = req?.headers.authorization;
+  if(!authHeader) {
+    return res.status(401).json({message: "Unauthorized"});
+  }
+  const token = authHeader.split(" ")[1];
+  if(!token){
+    return res.status(401).json({message: "Unauthorized"});
+  }
+
+  try {
+    const {payload} = await jwtVerify (token, JWKS);
+    console.log(payload);
+    next();
+  } catch {
+    return res.status(403).json({message: "Forbidden"});
+  }
+};
+
 
 async function run() {
   try {
@@ -35,12 +60,7 @@ async function run() {
       res.json(result);
     });
 
-        app.get("/room/:id", (req, res, next) => {
-        const header = req.headers.authorization;
-        console.log(header);
-          next();
-      
-      }, async (req, res) => {
+        app.get("/room/:id", verifyToken, async (req, res) => {
           const { id } = req.params;
           const result = await roomCollection.findOne({
             _id: new ObjectId(id),
