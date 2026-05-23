@@ -35,15 +35,23 @@ async function run() {
       res.json(result);
     });
 
-    app.get("/room/:id", async (req, res) => {
-      const { id } = req.params;
-      const result = await roomCollection.findOne({ _id: new ObjectId(id) });
+        app.get("/room/:id", (req, res, next) => {
+        const header = req.headers.authorization;
+        console.log(header);
+          next();
+      
+      }, async (req, res) => {
+          const { id } = req.params;
+          const result = await roomCollection.findOne({
+            _id: new ObjectId(id),
+          });
 
-      res.json(result);
-    });
+          res.json(result);
+      });
 
 
-    app.post('/room', async (req, res) => {
+
+    app.post("/room", async (req, res) => {
       try {
         const roomData = req.body
         console.log(roomData);
@@ -80,10 +88,10 @@ async function run() {
     });
 
 
-      app.get("/booking/:userId", async (req, res) => {
+      app.get("/bookings", async (req, res) => {
       const { userId } = req.params;
 
-      const result = await bookingCollection.find({ userId: new ObjectId(userId) }).toArray();
+      const result = await bookingCollection.find({ userId: userId }).toArray();
 
       res.json(result);
     });
@@ -97,7 +105,7 @@ async function run() {
     });
 
 
-    app.delete("/booking/:bookingId", async (req, res) => {
+    app.delete("/bookings/:bookingId", async (req, res) => {
       const { bookingId } = req.params;
       const result = await bookingCollection.deleteOne({
         _id: new ObjectId(bookingId),
