@@ -117,7 +117,7 @@ async function run() {
     });
 
 
-     app.post("/booking",  async (req, res) => {
+     app.post("/booking", verifyToken, async (req, res) => {
       const bookingData = req.body;
       const result = await bookingCollection.insertOne(bookingData);
 
@@ -125,7 +125,7 @@ async function run() {
     });
 
 
-    app.delete("/bookings/:bookingId", async (req, res) => {
+    app.delete("/bookings/:bookingId", verifyToken, async (req, res) => {
       const { bookingId } = req.params;
       const result = await bookingCollection.deleteOne({
         _id: new ObjectId(bookingId),
